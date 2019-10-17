@@ -1,13 +1,24 @@
 package com.manisks.flickrsearchapp
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.view.Menu
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.manisks.flickrsearchapp.databinding.ActivityMainBinding
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -18,22 +29,56 @@ class MainActivity : AppCompatActivity() {
     private var mQueryString: String = ""
     private var mHandler: Handler = Handler()
     private lateinit var mAdapter: ImageAdapter
+    private var columnCount = 2
+    private lateinit var mLayoutManager: GridLayoutManager
+
+    /**
+     * Lazily initialize our [MainViewModel].
+     */
+    private val viewModel: MainViewModel by lazy {
+        ViewModelProviders.of(this).get(MainViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         setupList()
-        setupDummyList()
+
+        binding.btnSubmit.setOnClickListener {
+            val column = binding.etNumber.text.toString().toInt()
+            if (column in 1..5) {
+                columnCount=column
+                mLayoutManager.spanCount=columnCount
+                mLayoutManager.requestLayout()
+                hideSoftKeyboard(searchView)
+            } else {
+                val snack = Snackbar.make(
+                    binding.etNumber,
+                    "Choose a number between 1 to 5", Snackbar.LENGTH_LONG
+                )
+                binding.etNumber.error = "Enter a valid number"
+                snack.show()
+            }
+
+        }
+
+        viewModel.photoList.observe(this, Observer {
+            it?.let {
+                mAdapter.data = it
+            }
+        })
+
+        binding.lifecycleOwner = this
     }
 
-    private fun setupDummyList() {
-        mAdapter.data= arrayListOf("a","b","b","b","b","b","b","b","b","b","b","b","b","b","b","b")
-    }
-
+    /**
+     * Method to setup the image list
+     */
     private fun setupList() {
-        binding.rvImageList.layoutManager = GridLayoutManager(this, 5)
-        mAdapter = ImageAdapter()
+        mLayoutManager = GridLayoutManager(this, columnCount)
+        binding.rvImageList.layoutManager = mLayoutManager
+        mAdapter = ImageAdapter(this)
         binding.rvImageList.adapter = mAdapter
     }
 
@@ -48,7 +93,8 @@ class MainActivity : AppCompatActivity() {
                 mQueryString = newText
                 mHandler.removeCallbacksAndMessages(null)
                 mHandler.postDelayed({
-                    getImagesFromFlickr()
+                    viewModel.getPhotosFromFlickr(newText)
+                    hideSoftKeyboard(searchView)
                 }, 500)
                 return true
             }
@@ -60,6 +106,9 @@ class MainActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
-    private fun getImagesFromFlickr() {
+    fun hideSoftKeyboard(view: View) {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_IMPLICIT_ONLY)
     }
+
 }
