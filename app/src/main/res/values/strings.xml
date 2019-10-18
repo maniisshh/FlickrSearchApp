@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">FlickrSearchApp</string>
+    <string name="view_more">View More</string>
 </resources>

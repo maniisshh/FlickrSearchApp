@@ -8,10 +8,18 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
+
 /**
  * Created by user on 14-10-2019.
  */
-class ImageAdapter(val mContext: Context) : RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
+class ImageAdapter(private val mContext: Context) :
+    RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
+
+    private lateinit var onBottomReachedListener: OnBottomReachedListener
+
+    fun setOnBottomReachedListener(onBottomReachedListener: OnBottomReachedListener) {
+        this.onBottomReachedListener = onBottomReachedListener
+    }
 
     var data = listOf<FlickrResult.Photos.Photo>()
         set(value) {
@@ -38,10 +46,12 @@ class ImageAdapter(val mContext: Context) : RecyclerView.Adapter<ImageAdapter.Vi
         Glide
             .with(mContext)
             .load(getPhotoURL(photoModel.farm, photoModel.id, photoModel.secret, photoModel.server))
-            .centerCrop()
             .placeholder(R.drawable.ic_launcher_background)
             .into(holder.photo)
 
+        if (position == data.size - 1) {
+            onBottomReachedListener.onBottomReached(position)
+        }
     }
 
     private fun getPhotoURL(
@@ -50,10 +60,14 @@ class ImageAdapter(val mContext: Context) : RecyclerView.Adapter<ImageAdapter.Vi
         secret: String,
         server: String
     ): String {
-        return "https://farm$farm.static.flickr.com/$server/$id/_$secret.jpg"
+        return "https://farm$farm.static.flickr.com/" + server + "/" + id + "_$secret.jpg"
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val photo: ImageView = itemView.findViewById(R.id.ivPhoto)
+    }
+
+    interface OnBottomReachedListener {
+        fun onBottomReached(position: Int)
     }
 }

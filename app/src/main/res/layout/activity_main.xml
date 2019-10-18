@@ -2,15 +2,16 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         tools:context=".MainActivity">
 
         <RelativeLayout
+            android:id="@+id/rlTop"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
             android:orientation="horizontal">
 
             <EditText
@@ -39,8 +40,34 @@
             android:id="@+id/rvImageList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_above="@+id/rvBottom"
+            android:layout_below="@+id/rlTop"
             android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp" />
+            android:layout_marginEnd="5dp"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp" />
 
-    </LinearLayout>
+        <RelativeLayout
+            android:id="@+id/rvBottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp">
+
+            <Button
+                android:id="@+id/btnViewMore"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/view_more"
+                android:visibility="gone" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="gone" />
+        </RelativeLayout>
+    </RelativeLayout>
 </layout>
