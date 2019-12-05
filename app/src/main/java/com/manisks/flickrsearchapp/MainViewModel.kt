@@ -23,7 +23,7 @@ class MainViewModel : ViewModel() {
 
     fun getPhotosFromFlickr(newText: String, pageCount: Int) {
         coroutineScope.launch {
-            var getPhotosDeferred = MarsApi.retrofitService
+            var getPhotosDeferred = FlickrApi.retrofitService
                 .getPhotosAsync(newText, pageCount)
             try {
                 val flickrResult: FlickrResult = getPhotosDeferred.await()

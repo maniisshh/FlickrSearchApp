@@ -64,6 +64,6 @@ interface FlickrApiService {
 /**
  * A public Api object that exposes the lazy-initialized Retrofit service
  */
-object MarsApi {
+object FlickrApi {
     val retrofitService: FlickrApiService by lazy { retrofit.create(FlickrApiService::class.java) }
 }
